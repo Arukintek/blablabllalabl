@@ -11,5 +11,7 @@ services:
         value: prisma/schema.postgres.prisma
       - key: DATABASE_URL
         sync: false
+      - key: DATABASE_URL_UNPOOLED
+        sync: false
       - key: DEMO_PASSWORD
         sync: false

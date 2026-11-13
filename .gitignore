@@ -1,4 +1,5 @@
 backend/node_modules/
+node_modules/
 backend/.env
 backend/prisma/*.db
 backend/prisma/*.db-journal
@@ -6,3 +7,5 @@ backend/prisma/*.db-shm
 backend/prisma/*.db-wal
 npm-debug.log*
 .DS_Store
+.env.local
+.neon

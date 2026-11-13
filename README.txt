@@ -16,16 +16,21 @@ Kyndelik 3
 Адрес: http://localhost:5000/login.html
 
 Бесплатный публичный preview (Render + Neon)
-1. Создайте GitHub-репозиторий и загрузите туда проект. Файл backend/.env,
-   SQLite-базу и папку backend/node_modules в репозиторий не добавляйте:
-   их исключает .gitignore. START.bat создаст локальный .env автоматически.
+1. Создайте GitHub-репозиторий и загрузите туда проект. Локальные файлы
+   backend/.env и .env.local, SQLite-базу и папки node_modules в репозиторий
+   не добавляйте: их исключает .gitignore. START.bat создаст локальный .env
+   автоматически. Neon CLI сохраняет локальные DATABASE_URL и
+   DATABASE_URL_UNPOOLED в корневом .env.local; backend загружает эти строки
+   при ручном запуске. START.bat по-прежнему использует локальную SQLite-базу,
+   чтобы не записывать демо-данные в Neon.
 2. Создайте бесплатный проект PostgreSQL на https://neon.com/ и скопируйте
-	строку подключения (лучше pooled connection string).
+   pooled connection string для приложения и прямую (не pooled) строку
+   подключения для операций со схемой базы данных.
 3. В Render выберите New > Blueprint, подключите GitHub-репозиторий и
 	подтвердите создание сервиса из render.yaml.
-4. В настройках сервиса Render задайте переменные DATABASE_URL (строка Neon)
-	и DEMO_PASSWORD (придумайте пароль не короче 12 символов), затем сохраните
-	настройки и запустите Deploy.
+4. В настройках сервиса Render задайте DATABASE_URL (pooled строка Neon),
+   DATABASE_URL_UNPOOLED (прямая строка Neon) и DEMO_PASSWORD (придумайте
+   пароль не короче 12 символов), затем сохраните настройки и запустите Deploy.
 5. После успешного Deploy откройте публичный адрес сервиса Render.
 
 Для входа в демо используйте один и тот же DEMO_PASSWORD:

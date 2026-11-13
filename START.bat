@@ -1,6 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0backend"
+set "DATABASE_URL=file:./dev.db"
 
 where.exe node >nul 2>nul
 if errorlevel 1 (
