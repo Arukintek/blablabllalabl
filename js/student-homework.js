@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const homeworkList = db.homework || [];
 
-  // Же железобетонно вытаскиваем имя группы студента в виде строки
   let userGroupName = "";
   if (user.group) {
     if (typeof user.group === "object" && user.group !== null) {
@@ -33,13 +32,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       userGroupName = String(user.group);
     }
   } else if (user.groupId) {
-    // Если есть только groupId, ищем название в массиве groups бэкенда
-    const foundGroup = (db.groups || []).find((g) => {
-      if (typeof g === "object" && g !== null)
-        return Number(g.id) === Number(user.groupId);
-      return false;
-    });
-    userGroupName = foundGroup ? foundGroup.name : "";
+    const databaseUser = (db.users || []).find(
+      (dbUser) => Number(dbUser.id) === Number(user.id),
+    );
+    userGroupName = databaseUser ? databaseUser.group || "" : "";
   }
 
   console.log("Итоговое имя группы студента для фильтра:", userGroupName);

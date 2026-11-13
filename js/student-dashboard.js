@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let scheduleData = [];
   let myGrades = [];
   let allHomework = [];
+  let databaseUsers = [];
 
   try {
     // 1. Загружаем общую базу данных с бэкенда
@@ -21,6 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (resDb.ok) {
       const db = await resDb.json();
       const allSchedules = db.schedules || [];
+      databaseUsers = db.users || [];
 
       // Фильтрация расписания под группу студента
       scheduleData = allSchedules.filter((l) => {
@@ -32,10 +34,16 @@ document.addEventListener("DOMContentLoaded", async () => {
           return true;
         }
 
-        const userGroupName =
+        let userGroupName =
           typeof user.group === "object" && user.group !== null
             ? user.group.name
             : user.group || "";
+        if (!userGroupName && user.id) {
+          const databaseUser = databaseUsers.find(
+            (dbUser) => Number(dbUser.id) === Number(user.id),
+          );
+          userGroupName = databaseUser ? databaseUser.group || "" : "";
+        }
         const cleanUserGroup = String(userGroupName)
           .replace(/[\s\-]/g, "")
           .toLowerCase();
