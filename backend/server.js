@@ -117,6 +117,7 @@ app.get("/api/db", async (req, res) => {
       day: s.dayOfWeek,
       time: s.timeSlot,
       group: s.group ? s.group.name : "",
+      groupId: s.groupId,
       subject: s.subject ? s.subject.name : "",
       subjectId: s.subjectId,
     }));
