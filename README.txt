@@ -33,10 +33,16 @@ Kyndelik 3
    пароль не короче 12 символов), затем сохраните настройки и запустите Deploy.
 5. После успешного Deploy откройте публичный адрес сервиса Render.
 
-Для входа в демо используйте один и тот же DEMO_PASSWORD:
-Администратор: admin@demo.kyndelik.test
-Преподаватель: teacher@demo.kyndelik.test
-Студент: student@demo.kyndelik.test
+В текущую Neon-базу загружен полный набор из backend/prisma/seed.js:
+Администратор: admin@college.edu
+Преподаватели: merkushev.rv@college.edu, mkrtchyan.a@college.edu,
+semyk.kd@college.edu
+Студенты: student1_1@college.edu–student1_20@college.edu и
+student2_1@college.edu–student2_16@college.edu
+Для этих аккаунтов используется общий пароль, заданный при импорте.
+Изменение DEMO_PASSWORD в Render не меняет пароли уже созданных пользователей.
+Локальный seed.js не создает оценки и домашние задания. Его повторный запуск
+заменяет данные в Neon, поэтому перед ним нужно сделать резервную копию.
 
 Ограничения бесплатного тарифа
 Render останавливает бесплатный сервис после простоя; первое открытие после
