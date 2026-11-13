@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Отчеты групп — FurAry</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap"></i> FurAry
+      </div>
+      <nav class="nav-links">
+        <a href="/admin/dashboard.html">Дашборд</a>
+        <a href="/admin/users.html">Пользователи</a>
+        <a href="/admin/subjects.html">Предметы</a>
+        <a href="/admin/schedule.html">Уроки</a>
+        <a href="/admin/reports.html" class="active">Отчеты групп</a>
+      </nav>
+      <div class="nav-user">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="Переключить тему"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="/admin/profile.html" class="user-name">Администратор</a>
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Блок выбора группы -->
+      <div
+        class="card"
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 15px;
+        "
+      >
+        <h2>
+          <i class="fa-solid fa-chart-pie"></i> Подробные отчеты успеваемости
+        </h2>
+        <div class="form-group" style="margin-bottom: 0; min-width: 250px">
+          <select id="report-group-select" class="input-text">
+            <!-- Группы подгрузятся через JS -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Детальная матрица оценок и посещаемости выбранной группы -->
+      <div class="card" style="overflow-x: auto">
+        <h3 id="report-title" style="margin-bottom: 15px; color: #0284c7">
+          Выберите группу для просмотра сводки
+        </h3>
+        <table id="admin-report-table">
+          <thead>
+            <tr id="report-thead">
+              <th style="min-width: 200px">Студент</th>
+              <th style="width: 100px; text-align: center">Ср. балл</th>
+            </tr>
+          </thead>
+          <tbody id="report-tbody">
+            <tr>
+              <td colspan="2" style="text-align: center; color: #64748b">
+                Выберите группу выше
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/admin-reports.js"></script>
+  </body>
+</html>

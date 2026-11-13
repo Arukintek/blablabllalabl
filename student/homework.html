@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Домашние задания — FurAry</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap"></i> FurAry
+      </div>
+      <nav class="nav-links">
+        <a href="/student/dashboard.html">Дашборд</a>
+        <a href="/student/schedule.html">Расписание</a>
+        <a href="/student/grades.html">Мои оценки</a>
+        <a href="/student/homework.html" class="active">Задания</a>
+      </nav>
+      <div class="nav-user">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="Переключить тему"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="/student/profile.html" class="user-name">Студент</a>
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="card">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+          "
+        >
+          <h2>
+            <i class="fa-solid fa-book-bookmark" style="color: #0284c7"></i>
+            Активные домашние задания
+          </h2>
+          <span
+            class="btn"
+            style="background: #e0f2fe; color: #0284c7; font-size: 0.85rem"
+            id="hw-counter"
+            >0 заданий</span
+          >
+        </div>
+
+        <div
+          id="student-homework-list"
+          style="display: flex; flex-direction: column; gap: 15px"
+        >
+          <!-- Карточки заданий подгружаются через JS -->
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/student-homework.js"></script>
+  </body>
+</html>

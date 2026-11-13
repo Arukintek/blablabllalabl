@@ -1,0 +1,95 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Пользователи системы (ученики, учителя, администраторы)
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("STUDENT") // STUDENT, TEACHER, ADMIN
+  groupId   Int?
+  group     Group?   @relation(fields: [groupId], references: [id])
+  
+  // Связи для расписания и оценок
+  schedules Schedule[] @relation("TeacherSchedules")
+  grades    Grade[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Учебные группы
+model Group {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  students  User[]
+  schedules Schedule[]
+  homeworks Homework[] 
+}
+
+// Учебные предметы (добавлено)
+model Subject {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  schedules Schedule[]
+  grades    Grade[]
+  homeworks Homework[]
+}
+
+// Расписание занятий
+model Schedule {
+  id        Int      @id @default(autoincrement())
+  dayOfWeek String   // Понедельник, Вторник и т.д.
+  timeSlot  String   // Например, "08:30 - 09:15"
+  
+  groupId   Int
+  group     Group    @relation(fields: [groupId], references: [id])
+  
+  subjectId Int
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  
+  teacherId Int
+  teacher   User     @relation("TeacherSchedules", fields: [teacherId], references: [id])
+
+  homeworks Homework[]
+}
+
+// Журнал оценок
+model Grade {
+  id        Int      @id @default(autoincrement())
+  value     Int      // Оценка
+  comment   String?  
+  date      DateTime @default(now())
+  
+  studentId Int
+  student   User     @relation(fields: [studentId], references: [id])
+  
+  subjectId Int
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+}
+
+model Homework {
+  id          Int      @id @default(autoincrement())
+  text        String   // Текст домашнего задания
+  deadline    String?  // Срок сдачи
+  createdAt   DateTime @default(now())
+
+  // Связь с группой (кому задано)
+  groupId     Int?
+  group       Group?   @relation(fields: [groupId], references: [id])
+
+  // Связь с конкретным уроком из расписания (опционально)
+  scheduleId  Int?
+  schedule    Schedule? @relation(fields: [scheduleId], references: [id])
+
+  // Связь с предметом
+  subjectId   Int?
+  subject     Subject?  @relation(fields: [subjectId], references: [id])
+}

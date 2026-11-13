@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FurAry — Авторизация</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="auth-body">
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-brand">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <h2>FurAry</h2>
+      <p>Вход в личный кабинет</p>
+    </div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" class="input-text" placeholder="Введите ваш e-mail" required autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label for="pass">Пароль</label>
+        <input type="password" id="pass" class="input-text" placeholder="Введите пароль" required autocomplete="off">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+        <span>Войти в систему</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
+  </div>
+
+  <script src="/js/login.js"></script>
+</body>
+</html>

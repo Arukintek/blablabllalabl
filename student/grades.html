@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Мои оценки — FurAry</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap"></i> FurAry
+      </div>
+      <nav class="nav-links">
+        <a href="/student/dashboard.html">Дашборд</a>
+        <a href="/student/schedule.html">Расписание</a>
+        <a href="/student/grades.html" class="active">Мои оценки</a>
+        <a href="/student/homework.html">Задания</a>
+      </nav>
+      <div class="nav-user">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="Переключить тему"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="/student/profile.html" class="user-name">Студент</a>
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Краткая статистика -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fa-solid fa-star"></i></div>
+          <div>
+            <div class="stat-val" id="student-avg-score">0</div>
+            <div class="stat-lbl">Средний балл</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fa-solid fa-award"></i></div>
+          <div>
+            <div class="stat-val" id="student-total-grades">0</div>
+            <div class="stat-lbl">Всего оценок</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Таблица оценок -->
+      <div class="card" style="overflow-x: auto">
+        <h2>
+          <i class="fa-solid fa-book-open-reader"></i> Детальная успеваемость
+        </h2>
+        <table style="margin-top: 15px">
+          <thead>
+            <tr>
+              <th>Дата урока</th>
+              <th>Тема урока</th>
+              <th style="text-align: center">Оценка / Статус</th>
+              <th>Комментарий преподавателя</th>
+            </tr>
+          </thead>
+          <tbody id="student-grades-tbody">
+            <!-- Заполняется через JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="/js/store.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/student-grades.js"></script>
+  </body>
+</html>

@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Электронный журнал — FurAry</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap"></i> FurAry
+      </div>
+      <nav class="nav-links">
+        <a href="/teacher/dashboard.html">Дашборд</a>
+        <a href="/teacher/journal.html" class="active">Журнал оценок</a>
+        <a href="/teacher/homework.html">Домашние задания</a>
+      </nav>
+      <div class="nav-user">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="Переключить тему"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="/teacher/profile.html" class="user-name">Преподаватель</a>
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Фильтры выборки -->
+      <div
+        class="card"
+        style="
+          display: flex;
+          gap: 20px;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+        "
+      >
+        <h2><i class="fa-solid fa-book-open"></i> Классный журнал</h2>
+        <div style="display: flex; gap: 15px">
+          <div class="form-group" style="margin-bottom: 0">
+            <select
+              id="filter-group"
+              class="input-text"
+              style="
+                background: #0f172a;
+                color: #fff;
+                border: 1px solid #334155;
+                padding: 8px 12px;
+                border-radius: 6px;
+              "
+            >
+              <option value="24ПО-п1.1">Группа: 24ПО-п1.1</option>
+              <option value="24ПО-п1.2">Группа: 24ПО-п1.2</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Таблица журнала -->
+      <div class="card" style="overflow-x: auto">
+        <table
+          id="journal-matrix-table"
+          style="width: 100%; border-collapse: collapse"
+        >
+          <thead>
+            <tr id="journal-thead-row">
+              <th style="min-width: 220px; text-align: left; padding: 12px">
+                Студент
+              </th>
+              <!-- Предметы подгрузятся через JS -->
+              <th style="width: 100px; text-align: center; padding: 12px">
+                Ср. балл
+              </th>
+            </tr>
+          </thead>
+          <tbody id="journal-tbody">
+            <!-- Строки студентов -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Быстрая форма добавления оценки -->
+      <div class="card">
+        <h3 style="color: #38bdf8; margin-bottom: 15px">
+          <i class="fa-solid fa-pen-to-square"></i> Выставить оценку / Отметить
+          посещаемость
+        </h3>
+        <form
+          id="journal-form"
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+          "
+        >
+          <div class="form-group">
+            <label
+              style="
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cbd5e1;
+              "
+              >Студент</label
+            >
+            <select
+              id="student-select"
+              class="input-text"
+              required
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #475569;
+                background: #0f172a;
+                color: #fff;
+                box-sizing: border-box;
+              "
+            ></select>
+          </div>
+          <div class="form-group">
+            <label
+              style="
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cbd5e1;
+              "
+              >Предмет</label
+            >
+            <select
+              id="lesson-select"
+              class="input-text"
+              required
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #475569;
+                background: #0f172a;
+                color: #fff;
+                box-sizing: border-box;
+              "
+            ></select>
+          </div>
+          <div class="form-group">
+            <label
+              style="
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cbd5e1;
+              "
+              >Дата урока</label
+            >
+            <input
+              type="text"
+              id="lesson-date-input"
+              class="input-text"
+              placeholder="ДД.ММ.ГГГГ"
+              required
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #475569;
+                background: #0f172a;
+                color: #fff;
+                box-sizing: border-box;
+              "
+            />
+          </div>
+          <div class="form-group">
+            <label
+              style="
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cbd5e1;
+              "
+              >Оценка (0-100)</label
+            >
+            <input
+              type="number"
+              id="score-input"
+              min="0"
+              max="100"
+              class="input-text"
+              placeholder="95"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #475569;
+                background: #0f172a;
+                color: #fff;
+                box-sizing: border-box;
+              "
+            />
+          </div>
+          <div class="form-group">
+            <label
+              style="
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cbd5e1;
+              "
+              >Посещаемость</label
+            >
+            <select
+              id="attendance-select"
+              class="input-text"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #475569;
+                background: #0f172a;
+                color: #fff;
+                box-sizing: border-box;
+              "
+            >
+              <option value="p">Присутствовал (Был)</option>
+              <option value="a">Отсутствовал (Н)</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1">
+            <label
+              style="
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cbd5e1;
+              "
+              >Комментарий к оценке</label
+            >
+            <input
+              type="text"
+              id="comment-input"
+              class="input-text"
+              placeholder="Например: Защита практической работы №2"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #475569;
+                background: #0f172a;
+                color: #fff;
+                box-sizing: border-box;
+              "
+            />
+          </div>
+          <button
+            type="submit"
+            class="btn btn-success"
+            style="
+              grid-column: 1 / -1;
+              background: #0284c7;
+              color: white;
+              border: none;
+              padding: 12px;
+              border-radius: 6px;
+              font-weight: 600;
+              cursor: pointer;
+            "
+          >
+            Сохранить изменения
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/teacher-journal.js"></script>
+  </body>
+</html>

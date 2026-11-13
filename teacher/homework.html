@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Выдача ДЗ — FurAry</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap"></i> FurAry
+      </div>
+      <nav class="nav-links">
+        <a href="/teacher/dashboard.html">Дашборд</a>
+        <a href="/teacher/journal.html">Журнал оценок</a>
+        <a href="/teacher/homework.html" class="active">Домашние задания</a>
+      </nav>
+      <div class="nav-user">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="Переключить тему"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="/teacher/profile.html" class="user-name">Преподаватель</a>
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Форма выдачи ДЗ -->
+      <div class="card">
+        <h2>
+          <i class="fa-solid fa-book-bookmark"></i> Выдать домашнее задание
+        </h2>
+        <form id="hw-form" style="display: grid; gap: 15px; margin-top: 15px">
+          <div class="form-group">
+            <label>Выберите группу</label>
+            <select id="hw-group" class="input-text" required>
+              <option value="24ПО р 1.1">24ПО р 1.1</option>
+              <option value="24ПО р 1.2">24ПО р 1.2</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 6px;
+              "
+            >
+              <label style="margin-bottom: 0">Урок (тема)</label>
+              <button
+                type="button"
+                id="open-lesson-modal"
+                class="btn"
+                style="
+                  padding: 4px 10px;
+                  font-size: 0.8rem;
+                  background: #e0f2fe;
+                  color: #0284c7;
+                "
+              >
+                <i class="fa-solid fa-plus"></i> Добавить новую тему
+              </button>
+            </div>
+            <select id="hw-lesson" class="input-text" required></select>
+          </div>
+
+          <div class="form-group">
+            <label>Текст домашнего задания</label>
+            <textarea
+              id="hw-text"
+              class="input-text"
+              rows="4"
+              required
+              placeholder="Опишите подробные требования к заданию..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Срок сдачи (дедлайн)</label>
+            <input type="date" id="hw-deadline" class="input-text" required />
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-paper-plane"></i> Опубликовать задание
+          </button>
+        </form>
+      </div>
+
+      <!-- Список уже выданных заданий -->
+      <div class="card">
+        <h3><i class="fa-solid fa-list-check"></i> История выданных заданий</h3>
+        <div id="hw-list" style="margin-top: 15px"></div>
+      </div>
+    </div>
+
+    <!-- Модальное окно для добавления новой темы/урока -->
+    <div
+      id="lesson-modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <div
+        class="card"
+        style="width: 100%; max-width: 400px; margin: 0; position: relative"
+      >
+        <h3>Добавить новую тему урока</h3>
+        <form
+          id="new-lesson-form"
+          style="margin-top: 15px; display: grid; gap: 15px"
+        >
+          <div class="form-group">
+            <label>Тема урока</label>
+            <input
+              type="text"
+              id="new-lesson-topic"
+              class="input-text"
+              required
+              placeholder="Например: Основы DOM-модели"
+            />
+          </div>
+          <div class="form-group">
+            <label>Дата урока</label>
+            <input
+              type="date"
+              id="new-lesson-date"
+              class="input-text"
+              required
+            />
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end">
+            <button
+              type="button"
+              id="close-lesson-modal"
+              class="btn"
+              style="background: #e2e8f0; color: #334155"
+            >
+              Отмена
+            </button>
+            <button type="submit" class="btn btn-success">Добавить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/teacher-homework.js"></script>
+  </body>
+</html>

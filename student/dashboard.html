@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Кабинет студента</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap"></i> FurAry
+      </div>
+      <nav class="nav-links">
+        <a href="/student/dashboard.html" class="active">Дашборд</a>
+        <a href="/student/schedule.html">Расписание</a>
+        <a href="/student/grades.html">Мои оценки</a>
+        <a href="/student/homework.html">Задания</a>
+      </nav>
+      <div class="nav-user">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="Переключить тему"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="/student/profile.html" class="user-name" id="student-name-nav"
+          >Студент</a
+        >
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fa-solid fa-star"></i></div>
+          <div>
+            <div class="stat-val" id="avg-score">0</div>
+            <div class="stat-lbl">Средний балл</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fa-solid fa-award"></i></div>
+          <div>
+            <div class="stat-val" id="my-grades-count">0</div>
+            <div class="stat-lbl">Получено оценок</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">
+            <i class="fa-solid fa-book-open"></i>
+          </div>
+          <div>
+            <div class="stat-val" id="active-hw-count">0</div>
+            <div class="stat-lbl">Домашних заданий</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <h3>
+            <i class="fa-solid fa-clock"></i> Ближайшие уроки и расписание
+          </h3>
+          <div id="student-schedule-summary" style="margin-top: 15px"></div>
+        </div>
+
+        <div class="card">
+          <h3><i class="fa-solid fa-bell"></i> Последняя оценка</h3>
+          <div
+            id="last-grade-box"
+            style="
+              margin-top: 15px;
+              text-align: center;
+              padding: 15px;
+              background: #f8fafc;
+              border-radius: 10px;
+            "
+          >
+            <div
+              style="font-size: 2.2rem; font-weight: 800; color: #0284c7"
+              id="last-score-val"
+            >
+              --
+            </div>
+            <p
+              id="last-score-comment"
+              style="color: #64748b; font-size: 0.9rem; margin-top: 5px"
+            >
+              Нет данных
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/student-dashboard.js"></script>
+  </body>
+</html>

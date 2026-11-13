@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Кабинет - Администратора</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap"></i> FurAry
+      </div>
+      <nav class="nav-links">
+        <a href="/admin/dashboard.html" class="active">Дашборд</a>
+        <a href="/admin/users.html">Пользователи</a>
+        <a href="/admin/subjects.html">Предметы</a>
+        <a href="/admin/schedule.html">Уроки</a>
+        <a href="/admin/reports.html">Отчеты групп</a>
+      </nav>
+      <div class="nav-user">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="Переключить тему"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="/admin/profile.html" class="user-name">Администратор</a>
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
+          <div>
+            <div class="stat-val" id="total-users">0</div>
+            <div class="stat-lbl">Всего пользователей</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <i class="fa-solid fa-user-graduate"></i>
+          </div>
+          <div>
+            <div class="stat-val" id="total-students">0</div>
+            <div class="stat-lbl">Студентов</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <i class="fa-solid fa-chalkboard-user"></i>
+          </div>
+          <div>
+            <div class="stat-val" id="total-teachers">0</div>
+            <div class="stat-lbl">Преподавателей</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <div>
+            <div class="stat-val" id="total-groups">0</div>
+            <div class="stat-lbl">Учебных групп</div>
+          </div>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="card">
+          <h3>
+            <i class="fa-solid fa-chart-line"></i> Обзор групп (24ПО р 1.1 и
+            1.2)
+          </h3>
+          <div id="groups-summary" style="margin-top: 15px"></div>
+        </div>
+
+        <div class="card">
+          <h3><i class="fa-solid fa-bolt"></i> Быстрые действия</h3>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+              margin-top: 15px;
+            "
+          >
+            <a href="/admin/users.html" class="btn btn-primary"
+              ><i class="fa-solid fa-user-plus"></i> Управление
+              пользователями</a
+            >
+            <a
+              href="/admin/schedule.html"
+              class="btn btn-primary"
+              style="background: #8b5cf6"
+              ><i class="fa-solid fa-calendar-plus"></i> Добавить урок</a
+            >
+            <a
+              href="/admin/reports.html"
+              class="btn btn-primary"
+              style="background: #10b981"
+              ><i class="fa-solid fa-file-invoice"></i> Отчеты успеваемости</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/admin-dashboard.js"></script>
+  </body>
+</html>

@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Управление пользователями</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap"></i> FurAry
+      </div>
+      <nav class="nav-links">
+        <a href="/admin/dashboard.html">Дашборд</a>
+        <a href="/admin/users.html" class="active">Пользователи</a>
+        <a href="/admin/subjects.html">Предметы</a>
+        <a href="/admin/schedule.html">Уроки</a>
+        <a href="/admin/reports.html">Отчеты групп</a>
+      </nav>
+      <div class="nav-user">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="Переключить тему"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="/admin/profile.html" class="user-name">Администратор</a>
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="card">
+        <div class="user-panel-header">
+          <h2 style="margin: 0">Пользователи системы</h2>
+          <button id="open-user-modal" class="panel-action-btn">
+            <i class="fa-solid fa-user-plus"></i> Добавить пользователя
+          </button>
+        </div>
+
+        <table id="users-table" class="user-table">
+          <thead>
+            <tr>
+              <th>ФИО</th>
+              <th>Email</th>
+              <th>Роль</th>
+              <th>Группа / Предмет</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Модальное окно добавления пользователя -->
+    <div
+      id="user-modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      "
+    >
+      <div
+        style="
+          background: #1e293b;
+          padding: 30px;
+          border-radius: 12px;
+          width: 100%;
+          max-width: 450px;
+          border: 1px solid #334155;
+          color: #f8fafc;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        "
+      >
+        <h3 style="margin-top: 0; margin-bottom: 20px; color: #38bdf8">
+          <i class="fa-solid fa-user-plus"></i> Регистрация нового пользователя
+        </h3>
+
+        <form id="new-user-form">
+          <div style="margin-bottom: 15px">
+            <label
+              style="
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cbd5e1;
+              "
+              >ФИО пользователя</label
+            >
+            <input
+              type="text"
+              id="new-user-name"
+              required
+              placeholder="Например: Иванов Иван Иванович"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #475569;
+                background: #0f172a;
+                color: #fff;
+                box-sizing: border-box;
+              "
+            />
+          </div>
+
+          <div style="margin-bottom: 15px">
+            <label
+              style="
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cbd5e1;
+              "
+              >Email (логин)</label
+            >
+            <input
+              type="email"
+              id="new-user-email"
+              required
+              placeholder="user@college.edu"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #475569;
+                background: #0f172a;
+                color: #fff;
+                box-sizing: border-box;
+              "
+            />
+          </div>
+
+          <div style="margin-bottom: 15px">
+            <label
+              style="
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cbd5e1;
+              "
+              >Пароль</label
+            >
+            <input
+              type="password"
+              id="new-user-password"
+              required
+              placeholder="••••••••"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #475569;
+                background: #0f172a;
+                color: #fff;
+                box-sizing: border-box;
+              "
+            />
+          </div>
+
+          <div style="margin-bottom: 15px">
+            <label
+              style="
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cbd5e1;
+              "
+              >Роль</label
+            >
+            <select
+              id="new-user-role"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #475569;
+                background: #0f172a;
+                color: #fff;
+                box-sizing: border-box;
+              "
+            >
+              <option value="student">student (Студент)</option>
+              <option value="teacher">teacher (Преподаватель)</option>
+              <option value="admin">admin (Администратор)</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: 20px" id="group-container">
+            <label
+              style="
+                display: block;
+                margin-bottom: 5px;
+                font-size: 0.9rem;
+                color: #cbd5e1;
+              "
+              >Группа</label
+            >
+            <select
+              id="new-user-group"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 6px;
+                border: 1px solid #475569;
+                background: #0f172a;
+                color: #fff;
+                box-sizing: border-box;
+              "
+            >
+              <!-- Динамически заполнится из базы -->
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px">
+            <button
+              type="button"
+              id="close-user-modal"
+              style="
+                background: #475569;
+                color: white;
+                border: none;
+                padding: 10px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+              "
+            >
+              Отмена
+            </button>
+            <button
+              type="submit"
+              style="
+                background: #0284c7;
+                color: white;
+                border: none;
+                padding: 10px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 600;
+              "
+            >
+              Создать
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/admin-users.js"></script>
+  </body>
+</html>

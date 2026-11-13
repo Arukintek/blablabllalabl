@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: kyndelik-demo
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npx prisma db push && node prisma/seed-demo.js && npm start
+    envVars:
+      - key: PRISMA_SCHEMA
+        value: prisma/schema.postgres.prisma
+      - key: DATABASE_URL
+        sync: false
+      - key: DEMO_PASSWORD
+        sync: false

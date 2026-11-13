@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Предметы — FurAry</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap"></i> FurAry
+      </div>
+      <nav class="nav-links">
+        <a href="/admin/dashboard.html">Дашборд</a>
+        <a href="/admin/users.html">Пользователи</a>
+        <a href="/admin/subjects.html" class="active">Предметы</a>
+        <a href="/admin/schedule.html">Уроки</a>
+        <a href="/admin/reports.html">Отчеты групп</a>
+      </nav>
+      <div class="nav-user">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="Переключить тему"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="/admin/profile.html" class="user-name">Администратор</a>
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Форма добавления нового предмета -->
+      <div class="card">
+        <h2><i class="fa-solid fa-plus-circle"></i> Добавить новый предмет</h2>
+        <form
+          id="subject-form"
+          style="
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+          "
+        >
+          <div class="form-group" style="flex: 1; margin-bottom: 0">
+            <label>Название предмета</label>
+            <input
+              type="text"
+              id="subject-name"
+              class="input-text"
+              required
+              placeholder="Например: Компьютерные сети"
+            />
+          </div>
+          <button type="submit" class="btn btn-success" style="height: 45px">
+            <i class="fa-solid fa-plus"></i> Добавить
+          </button>
+        </form>
+      </div>
+
+      <!-- Список предметов -->
+      <div class="card">
+        <h2><i class="fa-solid fa-book"></i> Список предметов</h2>
+        <ul
+          id="subjects-list"
+          style="
+            margin-top: 15px;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+          "
+        ></ul>
+      </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/admin-subjects.js"></script>
+  </body>
+</html>

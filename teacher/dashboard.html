@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Кабинет учителя</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap"></i> FurAry
+      </div>
+      <nav class="nav-links">
+        <a href="/teacher/dashboard.html" class="active">Дашборд</a>
+        <a href="/teacher/journal.html">Журнал оценок</a>
+        <a href="/teacher/homework.html">Домашние задания</a>
+      </nav>
+      <div class="nav-user">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="Переключить тему"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="/teacher/profile.html" class="user-name" id="teacher-name-nav"
+          >Преподаватель</a
+        >
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fa-solid fa-book"></i></div>
+          <div>
+            <div class="stat-val" id="my-subject">---</div>
+            <div class="stat-lbl">Мой предмет</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <i class="fa-solid fa-check-double"></i>
+          </div>
+          <div>
+            <div class="stat-val" id="grades-count">0</div>
+            <div class="stat-lbl">Выставлено оценок</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">
+            <i class="fa-solid fa-list-check"></i>
+          </div>
+          <div>
+            <div class="stat-val" id="hw-count">0</div>
+            <div class="stat-lbl">Выдано ДЗ</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <h3>
+            <i class="fa-solid fa-clock-rotate-left"></i> Последние выставленные
+            оценки
+          </h3>
+          <div id="recent-grades" style="margin-top: 15px"></div>
+        </div>
+
+        <div class="card">
+          <h3><i class="fa-solid fa-rocket"></i> Быстрый переход</h3>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+              margin-top: 15px;
+            "
+          >
+            <a href="/teacher/journal.html" class="btn btn-primary"
+              ><i class="fa-solid fa-pen-to-square"></i> Выставить оценку</a
+            >
+            <a
+              href="/teacher/homework.html"
+              class="btn btn-primary"
+              style="background: #10b981"
+              ><i class="fa-solid fa-plus"></i> Опубликовать ДЗ</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/teacher-dashboard.js"></script>
+  </body>
+</html>

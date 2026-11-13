@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Профиль</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap"></i> FurAry
+      </div>
+      <nav class="nav-links">
+        <a href="/student/dashboard.html">Дашборд</a>
+        <a href="/student/schedule.html">Расписание</a>
+        <a href="/student/grades.html">Мои оценки</a>
+        <a href="/student/homework.html">Задания</a>
+      </nav>
+      <div class="nav-user">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          type="button"
+          aria-label="Переключить тему"
+        >
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="/student/profile.html" class="user-name active">Студент</a>
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+    <div class="container">
+      <div class="card">
+        <h2>Профиль студента</h2>
+        <p id="profile-info" style="margin-top: 10px"></p>
+      </div>
+    </div>
+    <script src="/js/store.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/student-profile.js"></script>
+  </body>
+</html>
