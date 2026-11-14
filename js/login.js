@@ -26,7 +26,7 @@ document.getElementById("login-form").addEventListener("submit", async (event) =
     if (demoRole) user = { id: 0, email, ...demoRole };
   }
   if (!user) {
-    alert("Неверный логин или пароль. Для тестового входа используйте admin@college.edu, teacher@college.edu или student@college.edu; пароль: password123.");
+    alert("Неверный логин или пароль.");
     return;
   }
 

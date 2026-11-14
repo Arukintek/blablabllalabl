@@ -110,6 +110,7 @@ app.get("/api/db", async (req, res) => {
       email: u.email,
       role: u.role,
       group: u.group ? u.group.name : "",
+      groupId: u.groupId,
     }));
 
     const formattedSchedules = schedules.map((s) => ({
@@ -127,6 +128,7 @@ app.get("/api/db", async (req, res) => {
       text: hw.text,
       deadline: hw.deadline,
       group: hw.group ? hw.group.name : "Все",
+      groupId: hw.groupId,
       subjectId: hw.subjectId, // <--- Передаем ID предмета
     }));
 
@@ -382,13 +384,22 @@ app.post("/api/teacher/schedule", async (req, res) => {
 app.post("/api/teacher/homework", async (req, res) => {
   try {
     const { group, subjectId, text, deadline } = req.body;
-
     let groupId = null;
-    if (group && group !== "all" && group !== "Все") {
-      const groupRecord = await prisma.group.findFirst({
-        where: { name: group },
+    const groupValue = group == null ? "" : String(group).trim();
+    const isAllGroups = !groupValue || ["all", "все"].includes(groupValue.toLowerCase());
+    if (!isAllGroups) {
+      let groupRecord = await prisma.group.findFirst({
+        where: { name: groupValue },
       });
-      if (groupRecord) groupId = groupRecord.id;
+      if (!groupRecord && /^\d+$/.test(groupValue)) {
+        groupRecord = await prisma.group.findUnique({
+          where: { id: Number(groupValue) },
+        });
+      }
+      if (!groupRecord) {
+        return res.status(400).json({ success: false, error: "Учебная группа не найдена" });
+      }
+      groupId = groupRecord.id;
     }
 
     const homework = await prisma.homework.create({

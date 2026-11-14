@@ -15,8 +15,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     ? (myGrades.reduce((sum, grade) => sum + FuraryDemo.scoreOf(grade), 0) / myGrades.length).toFixed(1)
     : "0.0";
 
-  const groupName = typeof user.group === "object" && user.group ? user.group.name : user.group;
-  const homeworkCount = db.homework.filter((item) => !item.group || item.group === "Все" || item.group === groupName).length;
+  const studentRecord = db.users.find((student) => String(student.id) === String(user.id));
+  const groupValue = user.group || studentRecord?.group;
+  const groupName = typeof groupValue === "object" && groupValue ? groupValue.name : groupValue || "";
+  const groupId = user.groupId || studentRecord?.groupId;
+  const homeworkCount = db.homework.filter((item) => {
+    if (item.groupId != null && groupId != null) {
+      return Number(item.groupId) === Number(groupId);
+    }
+    const homeworkGroup = String(
+      typeof item.group === "object" && item.group ? item.group.name || "" : item.group || "",
+    ).trim();
+    return !homeworkGroup || homeworkGroup.toLowerCase() === "все"
+      || (groupName && homeworkGroup.toLowerCase() === String(groupName).trim().toLowerCase());
+  }).length;
   document.getElementById("active-hw-count").textContent = homeworkCount;
 
   const subjectAverages = new Map();

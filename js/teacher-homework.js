@@ -139,21 +139,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
       for (const hw of homeworkPayloads) {
-        await fetch('/api/teacher/homework', {
+        const response = await fetch('/api/teacher/homework', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(hw)
         });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || `Ошибка HTTP ${response.status}`);
+        }
       }
 
-      window.currentDb = await fetchBackendData();
+      const updatedDb = await fetchBackendData();
+      if (!updatedDb) return;
+      window.currentDb = updatedDb;
 
       alert('Домашнее задание успешно опубликовано!');
       document.getElementById('hw-text').value = '';
       renderHomeworkList();
     } catch (error) {
       console.error('Ошибка публикации ДЗ:', error);
-      alert('Не удалось отправить домашнее задание на сервер.');
+      alert(error.message || 'Не удалось отправить домашнее задание на сервер.');
     }
   });
 });
@@ -183,8 +189,9 @@ function renderGroupsDropdown() {
   const db = window.currentDb;
   const groupSelect = document.getElementById('hw-group');
   const groups = getUniqueGroups(db);
+  const escape = FuraryDemo.escapeHtml;
   let html = groups.length
-    ? `<option value="">Выберите группу</option><option value="all">Все группы</option>${groups.map(g => `<option value="${g}">${g}</option>`).join('')}`
+    ? `<option value="">Выберите группу</option><option value="all">Все группы</option>${groups.map(g => `<option value="${escape(g)}">${escape(g)}</option>`).join('')}`
     : '<option value="">Нет доступных групп</option>';
   groupSelect.innerHTML = html;
 }
@@ -193,6 +200,7 @@ function renderGroupsDropdown() {
 function updateLessonsDropdown() {
   const db = window.currentDb;
   const lessonSelect = document.getElementById('hw-lesson');
+  const escape = FuraryDemo.escapeHtml;
 
   const subjectsList = db.subjects || [];
 
@@ -201,7 +209,7 @@ function updateLessonsDropdown() {
   } else {
     lessonSelect.innerHTML = subjectsList.map(subj => {
       return `
-        <option value="${subj.id}">${subj.name}</option>
+        <option value="${escape(subj.id)}">${escape(subj.name)}</option>
       `;
     }).join('');
   }
@@ -212,6 +220,7 @@ function updateLessonsDropdown() {
 function renderHomeworkList() {
   const db = window.currentDb || {};
   const container = document.getElementById('hw-list');
+  const escape = FuraryDemo.escapeHtml;
 
   if (!db.homework || db.homework.length === 0) {
     container.innerHTML = '<p style="color: #64748b;">Пока не выдано ни одного домашнего задания.</p>';
@@ -225,11 +234,11 @@ function renderHomeworkList() {
     return `
       <div style="padding: 15px; border: 1px solid #334155; border-radius: 10px; margin-bottom: 12px; background: #0f172a; color: #f8fafc;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <span style="background: #0284c7; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem;">Группа: ${hw.group || 'Все'}</span>
-          <span style="font-size: 0.85rem; color: #f87171; font-weight: 600;"><i class="fa-regular fa-calendar"></i> Срок сдачи: ${hw.deadline || 'Не указан'}</span>
+          <span style="background: #0284c7; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem;">Группа: ${escape(hw.group || 'Все')}</span>
+          <span style="font-size: 0.85rem; color: #f87171; font-weight: 600;"><i class="fa-regular fa-calendar"></i> Срок сдачи: ${escape(hw.deadline || 'Не указан')}</span>
         </div>
-        <p style="font-weight: 600; color: #38bdf8; margin-bottom: 5px;">Предмет: ${subjectName}</p>
-        <p style="color: #cbd5e1; font-size: 0.95rem; white-space: pre-wrap;">${hw.text}</p>
+        <p style="font-weight: 600; color: #38bdf8; margin-bottom: 5px;">Предмет: ${escape(subjectName)}</p>
+        <p style="color: #cbd5e1; font-size: 0.95rem; white-space: pre-wrap;">${escape(hw.text)}</p>
       </div>
     `;
   }).join('');
