@@ -1,191 +1,160 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  if (typeof checkAccess === "function") checkAccess("teacher");
-  if (typeof initLogout === "function") initLogout();
+  checkAccess("teacher");
+  initLogout();
 
-  // 1. Загружаем всю базу данных с бэкенда при открытии страницы
-  window.currentDb = await fetchBackendData();
-  if (!window.currentDb) return;
-
-  // Устанавливаем текущую дату в формате YYYY-MM-DD для стандартного input type="date"
-  const dateInput = document.getElementById("lesson-date-input");
-  if (dateInput && !dateInput.value) {
-    dateInput.value = new Date().toISOString().split("T")[0];
-  }
-
+  const db = await FuraryDemo.loadData();
+  window.currentDb = db;
   const groupSelect = document.getElementById("filter-group");
+  const studentFilter = document.getElementById("journal-student-filter");
+  const subjectFilter = document.getElementById("journal-subject-filter");
+  const tableBody = document.getElementById("journal-tbody");
 
-  // Инициализация таблицы и формы
-  renderJournalMatrix();
-  updateFormSelects();
+  groupSelect.innerHTML = db.groups.map((group) => `<option value="${FuraryDemo.escapeHtml(group)}">${FuraryDemo.escapeHtml(group)}</option>`).join("");
+  subjectFilter.innerHTML += db.subjects.map((subject) => `<option value="${FuraryDemo.escapeHtml(subject.id)}">${FuraryDemo.escapeHtml(subject.name)}</option>`).join("");
+  document.getElementById("lesson-date-input").value = new Date().toISOString().slice(0, 10);
 
-  // Слушатель смены группы в фильтре
-  groupSelect.addEventListener("change", () => {
-    renderJournalMatrix();
-    updateFormSelects();
-  });
-
-  // Обработка формы выставления оценки
-  document
-    .getElementById("journal-form")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const studentId = document.getElementById("student-select").value;
-      const subjectId = document.getElementById("lesson-select").value; // ID предмета из subjects
-      const lessonDate = document.getElementById("lesson-date-input").value; // Выбранная дата из календаря
-      const scoreVal = document.getElementById("score-input").value;
-      const attendanceVal = document.getElementById("attendance-select").value;
-      const commentVal = document.getElementById("comment-input").value;
-
-      // Формируем данные под требования бэкенда
-      const gradeData = {
-        studentId: Number(studentId),
-        subjectId: Number(subjectId), // Передаем ID предмета
-        date: lessonDate, // Передаем дату (например, 2026-11-06)
-        score: scoreVal !== "" ? Number(scoreVal) : null,
-        attendance: attendanceVal,
-        comment: commentVal,
-      };
-
-      try {
-        // Отправляем оценку на бэкенд
-        const response = await fetch("/api/teacher/grades", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(gradeData),
-        });
-
-        const data = await response.json();
-        if (!response.ok || !data.success) throw new Error("Ошибка сохранения");
-
-        // Перезагружаем актуальные данные с сервера
-        window.currentDb = await fetchBackendData();
-
-        alert("Оценка успешно сохранена на сервере!");
-
-        // Перерисовываем матрицу и очищаем поле оценки/комментария
-        renderJournalMatrix();
-        document.getElementById("score-input").value = "";
-        document.getElementById("comment-input").value = "";
-      } catch (error) {
-        console.error("Ошибка при сохранении оценки:", error);
-        alert("Не удалось сохранить оценку на сервере.");
-      }
-    });
-});
-
-// Функция запроса данных с бэкенда
-async function fetchBackendData() {
-  try {
-    const res = await fetch("/api/db");
-    if (!res.ok) throw new Error(`Ошибка HTTP: ${res.status}`);
-    return await res.json();
-  } catch (e) {
-    console.error("Ошибка связи с бэкендом:", e);
-    alert("Не удалось загрузить данные с сервера.");
-    return null;
-  }
-}
-
-function renderJournalMatrix() {
-  const db = window.currentDb;
-  if (!db) return;
-
-  const selectedGroup = document.getElementById("filter-group").value;
-
-  const students = (db.users || []).filter(
-    (u) => u.role === "student" && u.group === selectedGroup,
-  );
-  // Берем строго список предметов из таблицы subjects
-  const subjects = db.subjects || [];
-
-  const theadRow = document.getElementById("journal-thead-row");
-  const tbody = document.getElementById("journal-tbody");
-
-  // Формируем заголовки столбцов на основе предметов (subjects)
-  let headHtml = `<th style="min-width: 200px; padding: 12px; text-align: left;">Студент</th>`;
-  subjects.forEach((subj) => {
-    headHtml += `
-          <th style="text-align: center; min-width: 140px; padding: 12px; color: #38bdf8;" title="${subj.name}">
-            ${subj.name}
-          </th>`;
-  });
-  headHtml += `<th style="width: 100px; text-align: center; padding: 12px; background: #0369a1; color: #fff;">Ср. балл</th>`;
-  theadRow.innerHTML = headHtml;
-
-  if (students.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="${subjects.length + 2}" style="text-align:center; color:#64748b; padding: 20px;">В этой группе нет студентов</td></tr>`;
-    return;
+  function groupStudents() {
+    return db.users.filter((user) => user.role === "student" && user.group === groupSelect.value);
   }
 
-  // Заполняем строки студентов и их оценки по предметам
-  tbody.innerHTML = students
-    .map((student) => {
-      let studentScores = [];
-      let cellsHtml = `<td style="padding: 12px; color: #f8fafc;"><b>${student.name}</b></td>`;
+  function updateFilters() {
+    const selected = studentFilter.value;
+    studentFilter.innerHTML = '<option value="all">Все ученики</option>' + groupStudents().map((student) =>
+      `<option value="${FuraryDemo.escapeHtml(student.id)}">${FuraryDemo.escapeHtml(student.name)}</option>`,
+    ).join("");
+    if ([...studentFilter.options].some((option) => option.value === selected)) studentFilter.value = selected;
 
-      subjects.forEach((subject) => {
-        // Ищем оценку по студенту и subjectId
-        const grade = (db.grades || []).find(
-          (g) =>
-            String(g.studentId) === String(student.id) &&
-            String(g.subjectId) === String(subject.id),
-        );
+    const students = groupStudents();
+    const selectableStudents = students.filter((student) => studentFilter.value === "all" || String(student.id) === studentFilter.value);
+    document.getElementById("student-select").innerHTML = selectableStudents.map((student) =>
+      `<option value="${FuraryDemo.escapeHtml(student.id)}">${FuraryDemo.escapeHtml(student.name)}</option>`,
+    ).join("");
+    document.getElementById("lesson-select").innerHTML = db.subjects.map((subject) =>
+      `<option value="${FuraryDemo.escapeHtml(subject.id)}">${FuraryDemo.escapeHtml(subject.name)}</option>`,
+    ).join("");
+  }
 
-        if (grade) {
-          const scoreValue =
-            grade.score !== undefined ? grade.score : grade.value;
+  function getLessons() {
+    const studentIds = groupStudents().map((student) => String(student.id));
+    const subjectIds = subjectFilter.value === "all" ? null : [subjectFilter.value];
+    return db.grades
+      .filter((grade) => studentIds.includes(String(grade.studentId)) && (!subjectIds || subjectIds.includes(String(grade.subjectId))))
+      .map((grade) => ({ date: grade.date || "", subjectId: String(grade.subjectId), lesson: grade.lesson || "" }))
+      .filter((lesson, index, list) => list.findIndex((other) => lesson.date === other.date && lesson.subjectId === other.subjectId) === index)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.subjectId.localeCompare(b.subjectId));
+  }
 
-          if (grade.attendance === "a") {
-            cellsHtml += `<td style="text-align: center; padding: 12px;"><span style="color: #ef4444; font-weight: bold;" title="${grade.comment || "Отсутствовал"}">Н</span></td>`;
-          } else if (scoreValue !== null && scoreValue !== undefined) {
-            studentScores.push(Number(scoreValue));
-            cellsHtml += `<td style="text-align: center; padding: 12px;"><span style="padding: 4px 8px; font-size: 0.85rem; background: rgba(34, 197, 94, 0.2); color: #4ade80; font-weight: bold; border-radius: 4px;" title="${grade.comment || "Оценка"}">${scoreValue}</span></td>`;
-          } else {
-            cellsHtml += `<td style="text-align: center; padding: 12px; color: #64748b;">-</td>`;
-          }
-        } else {
-          cellsHtml += `<td style="text-align: center; padding: 12px; color: #64748b;">-</td>`;
-        }
+  function renderJournalMatrix() {
+    const allStudents = groupStudents();
+    const students = allStudents.filter((student) => studentFilter.value === "all" || String(student.id) === studentFilter.value);
+    const lessons = getLessons();
+    const head = document.getElementById("journal-thead-row");
+    const summary = document.getElementById("journal-average-summary");
+    head.innerHTML = `<th style="min-width:220px">Студент</th>${lessons.map((lesson) => {
+      const subject = db.subjects.find((item) => String(item.id) === lesson.subjectId);
+      return `<th title="${FuraryDemo.escapeHtml(lesson.lesson)}">${FuraryDemo.escapeHtml(lesson.date)}<br><small>${FuraryDemo.escapeHtml(subject?.name || "Предмет")}</small></th>`;
+    }).join("")}<th>Средний балл</th>`;
+
+    if (!students.length) {
+      tableBody.innerHTML = `<tr><td colspan="${lessons.length + 2}" style="text-align:center;padding:24px;color:var(--text-muted)">В этой группе нет студентов.</td></tr>`;
+      summary.innerHTML = "";
+      return;
+    }
+
+    const averages = [];
+    tableBody.innerHTML = students.map((student) => {
+      const scores = lessons.map((lesson) => {
+        const grade = db.grades.find((item) => String(item.studentId) === String(student.id) && String(item.subjectId) === lesson.subjectId && (item.date || "") === lesson.date);
+        const score = grade ? FuraryDemo.scoreOf(grade) : 0;
+        if (grade) return `<td class="grade-cell" tabindex="0" role="button" data-student="${FuraryDemo.escapeHtml(student.id)}" data-subject="${lesson.subjectId}" data-date="${FuraryDemo.escapeHtml(lesson.date)}" title="Нажмите, чтобы изменить оценку"><span class="grade-value">${grade.attendance === "a" ? "Н · " : ""}${score}</span></td>`;
+        return `<td class="grade-cell" tabindex="0" role="button" data-student="${FuraryDemo.escapeHtml(student.id)}" data-subject="${lesson.subjectId}" data-date="${FuraryDemo.escapeHtml(lesson.date)}" title="Нажмите, чтобы поставить оценку"><span class="grade-empty">+ Оценка</span></td>`;
       });
+      const average = lessons.length ? lessons.reduce((sum, lesson) => {
+        const grade = db.grades.find((item) => String(item.studentId) === String(student.id) && String(item.subjectId) === lesson.subjectId && (item.date || "") === lesson.date);
+        return sum + (grade ? FuraryDemo.scoreOf(grade) : 0);
+      }, 0) / lessons.length : 0;
+      averages.push(average);
+      return `<tr><td><strong>${FuraryDemo.escapeHtml(student.name)}</strong></td>${scores.join("")}<td><span class="average-pill">${average.toFixed(1)}</span></td></tr>`;
+    }).join("");
 
-      let avg = "-";
-      if (studentScores.length > 0) {
-        avg = (
-          studentScores.reduce((a, b) => a + b, 0) / studentScores.length
-        ).toFixed(1);
-      }
-
-      cellsHtml += `<td style="text-align: center; padding: 12px; font-weight: bold; background: #1e293b; color: #38bdf8;">${avg}</td>`;
-
-      return `<tr style="border-bottom: 1px solid #334155;">${cellsHtml}</tr>`;
-    })
-    .join("");
-}
-
-function updateFormSelects() {
-  const db = window.currentDb;
-  if (!db) return;
-
-  const selectedGroup = document.getElementById("filter-group").value;
-
-  const students = (db.users || []).filter(
-    (u) => u.role === "student" && u.group === selectedGroup,
-  );
-  const subjects = db.subjects || [];
-
-  const studentSelect = document.getElementById("student-select");
-  const lessonSelect = document.getElementById("lesson-select");
-
-  if (studentSelect) {
-    studentSelect.innerHTML = students
-      .map((s) => `<option value="${s.id}">${s.name}</option>`)
-      .join("");
+    const groupAverage = averages.length ? (averages.reduce((sum, average) => sum + average, 0) / averages.length).toFixed(1) : "0.0";
+    summary.innerHTML = `<span class="metric-chip">Группа: <strong>${FuraryDemo.escapeHtml(groupSelect.value)}</strong></span>
+      <span class="metric-chip">Учеников: <strong>${students.length}</strong></span>
+      <span class="metric-chip">Уроков в журнале: <strong>${lessons.length}</strong></span>
+      <span class="metric-chip">Средний балл выборки: <strong>${groupAverage}</strong></span>`;
   }
-  if (lessonSelect) {
-    // Заполняем селект чистыми предметами из таблицы subjects
-    lessonSelect.innerHTML = subjects
-      .map((subj) => `<option value="${subj.id}">${subj.name}</option>`)
-      .join("");
+
+  function editGrade(cell) {
+    const found = db.grades.find((grade) => String(grade.studentId) === cell.dataset.student && String(grade.subjectId) === cell.dataset.subject && (grade.date || "") === cell.dataset.date);
+    const student = db.users.find((item) => String(item.id) === cell.dataset.student);
+    const subject = db.subjects.find((item) => String(item.id) === cell.dataset.subject);
+    FuraryDemo.openGradeEditor({
+      studentName: student?.name || "Ученик",
+      subjectName: subject?.name || "Предмет",
+      date: cell.dataset.date,
+      grade: found,
+      onSave(value, attendance) {
+        if (found) {
+          found.score = attendance === "a" ? 0 : value;
+          found.attendance = attendance;
+        } else {
+          db.grades.push({ id: Date.now(), studentId: Number(cell.dataset.student), subjectId: Number(cell.dataset.subject), date: cell.dataset.date, score: attendance === "a" ? 0 : value, attendance, comment: "", lesson: "" });
+        }
+        FuraryDemo.saveData(db);
+        renderJournalMatrix();
+      },
+    });
   }
-}
+
+  tableBody.addEventListener("click", (event) => {
+    const cell = event.target.closest(".grade-cell");
+    if (cell) editGrade(cell);
+  });
+  tableBody.addEventListener("keydown", (event) => {
+    if ((event.key === "Enter" || event.key === " ") && event.target.matches(".grade-cell")) {
+      event.preventDefault();
+      editGrade(event.target);
+    }
+  });
+
+  [groupSelect, studentFilter, subjectFilter].forEach((select) => select.addEventListener("change", () => {
+    updateFilters();
+    renderJournalMatrix();
+  }));
+  document.getElementById("journal-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const studentId = document.getElementById("student-select").value;
+    const subjectId = document.getElementById("lesson-select").value;
+    const date = document.getElementById("lesson-date-input").value;
+    const rawScore = document.getElementById("score-input").value;
+    const attendance = document.getElementById("attendance-select").value;
+    if (!studentId || !subjectId || !date) {
+      alert("Выберите ученика, предмет и дату урока.");
+      return;
+    }
+    if (rawScore !== "" && (!Number.isFinite(Number(rawScore)) || Number(rawScore) < 0 || Number(rawScore) > 100)) {
+      alert("Оценка должна быть числом от 0 до 100.");
+      return;
+    }
+    const existing = db.grades.find((grade) => String(grade.studentId) === studentId && String(grade.subjectId) === subjectId && grade.date === date);
+    const gradeData = {
+      id: existing?.id || Date.now(),
+      studentId: Number(studentId),
+      subjectId: Number(subjectId),
+      date,
+      score: attendance === "a" ? 0 : rawScore === "" ? null : Number(rawScore),
+      attendance,
+      comment: document.getElementById("comment-input").value.trim(),
+      lesson: existing?.lesson || "",
+    };
+    if (existing) Object.assign(existing, gradeData);
+    else db.grades.push(gradeData);
+    FuraryDemo.saveData(db);
+    document.getElementById("score-input").value = "";
+    document.getElementById("comment-input").value = "";
+    renderJournalMatrix();
+  });
+
+  updateFilters();
+  renderJournalMatrix();
+});

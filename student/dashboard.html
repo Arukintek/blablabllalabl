@@ -2,6 +2,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Кабинет студента</title>
     <link rel="stylesheet" href="/css/main.css" />
     <link
@@ -74,6 +75,11 @@
         </div>
 
         <div class="card">
+          <h3><i class="fa-solid fa-chart-line"></i> Успеваемость по предметам</h3>
+          <div id="student-subject-averages" class="student-subject-averages"></div>
+        </div>
+
+        <div class="card">
           <h3><i class="fa-solid fa-bell"></i> Последняя оценка</h3>
           <div
             id="last-grade-box"
@@ -86,7 +92,7 @@
             "
           >
             <div
-              style="font-size: 2.2rem; font-weight: 800; color: #0284c7"
+              style="font-size: 2.2rem; font-weight: 800; color: #0d9488"
               id="last-score-val"
             >
               --
@@ -102,6 +108,7 @@
       </div>
     </div>
 
+    <script src="/js/demo-data.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/student-dashboard.js"></script>
   </body>

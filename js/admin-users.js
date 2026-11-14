@@ -2,188 +2,123 @@ document.addEventListener("DOMContentLoaded", async () => {
   checkAccess("admin");
   initLogout();
 
+  const db = await FuraryDemo.loadData();
   const modal = document.getElementById("user-modal");
-  const openBtn = document.getElementById("open-user-modal");
-  const closeBtn = document.getElementById("close-user-modal");
   const roleSelect = document.getElementById("new-user-role");
   const groupContainer = document.getElementById("group-container");
+  const groupInput = document.getElementById("new-user-group");
+  const groupFilter = document.getElementById("user-group-filter");
+  const table = document.getElementById("users-table");
+  const search = document.getElementById("user-search");
+  const roleFilter = document.getElementById("user-role-filter");
+  const masterChecks = [
+    document.getElementById("select-all-users"),
+    document.getElementById("select-all-users-head"),
+  ];
 
-  // Загружаем актуальную базу данных с бэкенда через fetch
-  let db;
-  try {
-    const res = await fetch("/api/db");
-    if (!res.ok) throw new Error("Ошибка загрузки данных");
-    db = await res.json();
-  } catch (e) {
-    console.error("Ошибка связи с бэкендом:", e);
-    return;
+  groupInput.innerHTML = db.groups.map((group) =>
+    `<option value="${FuraryDemo.escapeHtml(group)}">${FuraryDemo.escapeHtml(group)}</option>`,
+  ).join("");
+  groupFilter.innerHTML += db.groups.map((group) =>
+    `<option value="${FuraryDemo.escapeHtml(group)}">${FuraryDemo.escapeHtml(group)}</option>`,
+  ).join("");
+
+  function filteredUsers() {
+    const term = search.value.trim().toLocaleLowerCase("ru");
+    return db.users.filter((user) => {
+      const matchesTerm = !term || `${user.name} ${user.email}`.toLocaleLowerCase("ru").includes(term);
+      const matchesRole = roleFilter.value === "all" || user.role === roleFilter.value;
+      const matchesGroup = groupFilter.value === "all" || user.group === groupFilter.value;
+      return matchesTerm && matchesRole && matchesGroup;
+    });
   }
 
-  // Рендеринг таблицы пользователей
-  renderUsersTable(db);
+  function renderUsersTable() {
+    const users = filteredUsers();
+    document.getElementById("users-result-count").textContent = `Показано ${users.length} из ${db.users.length}`;
+    table.querySelector("tbody").innerHTML = users.length
+      ? users.map((user) => `
+        <tr>
+          <td><input class="user-row-check" type="checkbox" value="${FuraryDemo.escapeHtml(user.id)}" aria-label="Выбрать ${FuraryDemo.escapeHtml(user.name)}"></td>
+          <td class="user-name-cell">${FuraryDemo.escapeHtml(user.name || "Без имени")}</td>
+          <td class="user-email-cell">${FuraryDemo.escapeHtml(user.email || "-")}</td>
+          <td><span class="user-role-badge role-${FuraryDemo.escapeHtml(user.role)}">${({ student: "Студент", teacher: "Преподаватель", admin: "Администратор" })[user.role] || user.role}</span></td>
+          <td>${FuraryDemo.escapeHtml(user.group || user.subject || "-")}</td>
+          <td class="user-action-cell">
+            ${user.role !== "admin" ? `
+              <button class="user-action-btn user-action-btn--primary" data-action="login-as" data-id="${FuraryDemo.escapeHtml(user.id)}">Войти как</button>
+              <button class="user-action-btn user-action-btn--danger" data-action="delete" data-id="${FuraryDemo.escapeHtml(user.id)}" aria-label="Удалить пользователя"><i class="fa-solid fa-trash"></i></button>
+            ` : '<span class="user-system-label">Системный</span>'}
+          </td>
+        </tr>`).join("")
+      : '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">Совпадений не найдено.</td></tr>';
+    masterChecks.forEach((check) => {
+      check.checked = users.length > 0 && users.every((user) =>
+        table.querySelector(`.user-row-check[value="${CSS.escape(String(user.id))}"]`)?.checked,
+      );
+      check.indeterminate = false;
+    });
+  }
 
-  // Заполняем селект групп из базы данных
-  const groupSelect = document.getElementById("new-user-group");
-  const groupsList = db.groups || [];
-  groupSelect.innerHTML = groupsList
-    .map((g) => `<option value="${g}">${g}</option>`)
-    .join("");
+  function toggleGroupField() {
+    groupContainer.hidden = roleSelect.value !== "student";
+  }
 
-  // Скрываем/показываем поле группы в зависимости от выбранной роли
-  roleSelect.addEventListener("change", () => {
-    if (roleSelect.value === "student") {
-      groupContainer.style.display = "block";
-    } else {
-      groupContainer.style.display = "none"; // Учителям и админам группа не нужна
-    }
+  search.addEventListener("input", renderUsersTable);
+  roleFilter.addEventListener("change", renderUsersTable);
+  groupFilter.addEventListener("change", renderUsersTable);
+  roleSelect.addEventListener("change", toggleGroupField);
+  toggleGroupField();
+
+  masterChecks.forEach((check) => check.addEventListener("change", () => {
+    table.querySelectorAll(".user-row-check").forEach((rowCheck) => { rowCheck.checked = check.checked; });
+    masterChecks.forEach((other) => { other.checked = check.checked; });
+  }));
+  table.addEventListener("change", (event) => {
+    if (!event.target.matches(".user-row-check")) return;
+    const rows = [...table.querySelectorAll(".user-row-check")];
+    masterChecks.forEach((check) => {
+      check.checked = rows.length > 0 && rows.every((row) => row.checked);
+      check.indeterminate = rows.some((row) => row.checked) && !check.checked;
+    });
   });
 
-  // Управление открытием/закрытием модального окна
-  if (openBtn) {
-    openBtn.addEventListener("click", () => {
-      modal.style.display = "flex";
-    });
-  }
-
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      modal.style.display = "none";
-    });
-  }
-
-  // Обработка отправки формы регистрации пользователя
-  const form = document.getElementById("new-user-form");
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById("new-user-name").value;
-      const email = document.getElementById("new-user-email").value;
-      const password = document.getElementById("new-user-password").value;
-      const role = document.getElementById("new-user-role").value;
-      const groupName = document.getElementById("new-user-group").value;
-
-      let groupId = null;
-      if (role === "student" && db.users) {
-        const matchedStudent = db.users.find(
-          (u) => u.group === groupName && u.groupId,
-        );
-        if (matchedStudent) {
-          groupId = matchedStudent.groupId;
-        } else {
-          groupId = 1;
-        }
-      }
-
-      const payload = {
-        name,
-        email,
-        password,
-        role,
-        groupId: role === "student" ? Number(groupId) : null,
-      };
-
-      try {
-        const response = await fetch("/api/users", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.error || "Ошибка при создании пользователя");
-        }
-
-        alert("Пользователь успешно зарегистрирован!");
-        modal.style.display = "none";
-        form.reset();
-
-        // Перезагружаем данные и обновляем таблицу
-        const updatedRes = await fetch("/api/db");
-        const updatedDb = await updatedRes.json();
-        renderUsersTable(updatedDb);
-      } catch (error) {
-        console.error("Ошибка:", error);
-        alert("Не удалось зарегистрировать пользователя: " + error.message);
-      }
-    });
-  }
-});
-
-function renderUsersTable(db) {
-  const tbody = document.querySelector("#users-table tbody");
-  if (!tbody) return;
-
-  const users = db.users || [];
-
-  if (users.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #64748b; padding: 20px;">Список пользователей пуст.</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = users
-    .map(
-      (u) => `
-    <tr>
-      <td class="user-name-cell">${u.name || "Без имени"}</td>
-      <td class="user-email-cell">${u.email || "-"}</td>
-      <td><span class="user-role-badge role-${(u.role || "student").toLowerCase()}">${u.role || "-"}</span></td>
-      <td>${u.group || "-"}</td>
-      <td class="user-action-cell">
-        ${
-          u.role !== "admin"
-            ? `
-          <button class="user-action-btn user-action-btn--primary" onclick="impersonate('${u.id}')">Войти как</button>
-          <button class="user-action-btn user-action-btn--danger" onclick="deleteUser('${u.id}', '${u.name}')"><i class="fa-solid fa-trash"></i></button>
-        `
-            : '<span class="user-system-label">Системный</span>'
-        }
-      </td>
-    </tr>
-  `,
-    )
-    .join("");
-}
-
-async function impersonate(userId) {
-  try {
-    const res = await fetch("/api/db");
-    const db = await res.json();
-    const user = (db.users || []).find((u) => String(u.id) === String(userId));
-
-    if (user) {
+  table.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const user = db.users.find((item) => String(item.id) === button.dataset.id);
+    if (!user) return;
+    if (button.dataset.action === "login-as") {
       localStorage.setItem("current_user", JSON.stringify(user));
       window.location.href = `/${user.role}/dashboard.html`;
     }
-  } catch (e) {
-    console.error("Ошибка при входе под пользователем:", e);
-  }
-}
-
-// Функция удаления пользователя
-async function deleteUser(userId, userName) {
-  if (!confirm(`Вы действительно хотите удалить пользователя "${userName}"?`)) {
-    return;
-  }
-
-  try {
-    const res = await fetch(`/api/users/${userId}`, {
-      method: "DELETE",
-    });
-
-    if (!res.ok) {
-      throw new Error("Не удалось удалить пользователя на сервере");
+    if (button.dataset.action === "delete" && confirm(`Удалить пользователя «${user.name}»?`)) {
+      db.users = db.users.filter((item) => String(item.id) !== String(user.id));
+      FuraryDemo.saveData(db);
+      renderUsersTable();
     }
+  });
 
-    alert("Пользователь успешно удален!");
+  document.getElementById("open-user-modal").addEventListener("click", () => { modal.style.display = "flex"; });
+  document.getElementById("close-user-modal").addEventListener("click", () => { modal.style.display = "none"; });
+  document.getElementById("new-user-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const role = roleSelect.value;
+    const group = role === "student" ? groupInput.value : "";
+    db.users.push({
+      id: Date.now(),
+      name: document.getElementById("new-user-name").value.trim(),
+      email: document.getElementById("new-user-email").value.trim(),
+      password: document.getElementById("new-user-password").value,
+      role,
+      ...(group ? { group, groupId: db.groups.indexOf(group) + 1 } : {}),
+    });
+    FuraryDemo.saveData(db);
+    event.target.reset();
+    toggleGroupField();
+    modal.style.display = "none";
+    renderUsersTable();
+  });
 
-    // Перезагружаем список пользователей
-    const updatedRes = await fetch("/api/db");
-    const updatedDb = await updatedRes.json();
-    renderUsersTable(updatedDb);
-  } catch (e) {
-    console.error("Ошибка при удалении:", e);
-    alert("Ошибка при удалении пользователя.");
-  }
-}
+  renderUsersTable();
+});

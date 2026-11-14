@@ -2,96 +2,78 @@ document.addEventListener("DOMContentLoaded", async () => {
   checkAccess("admin");
   initLogout();
 
-  // Загружаем предметы с бэкенда при открытии страницы
-  let subjects = await loadSubjects();
-  renderSubjects(subjects);
-
-  // Обработка формы добавления предмета
-  const form = document.getElementById("subject-form");
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const nameInput = document.getElementById("subject-name");
-      const subjectName = nameInput.value.trim();
-
-      if (!subjectName) return;
-
-      try {
-        // Отправляем запрос на создание предмета в БД
-        const response = await fetch("/api/subjects", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: subjectName }),
-        });
-
-        if (!response.ok) throw new Error("Ошибка создания предмета");
-
-        // Очищаем инпут и перезагружаем список с сервера
-        nameInput.value = "";
-        subjects = await loadSubjects();
-        renderSubjects(subjects);
-        alert("Предмет успешно добавлен в базу данных!");
-      } catch (error) {
-        console.error("Ошибка:", error);
-        alert("Не удалось добавить предмет на сервер.");
-      }
-    });
-  }
-});
-
-// Функция загрузки предметов с сервера PostgreSQL
-async function loadSubjects() {
-  try {
-    const res = await fetch("/api/subjects");
-    if (!res.ok) throw new Error("Ошибка загрузки предметов");
-    return await res.json();
-  } catch (e) {
-    console.error("Ошибка связи с бэкендом:", e);
-    return [];
-  }
-}
-
-// Рендер списка предметов
-function renderSubjects(subjects) {
+  const db = await FuraryDemo.loadData();
   const list = document.getElementById("subjects-list");
-  if (!list) return;
+  const form = document.getElementById("subject-form");
 
-  if (!subjects || subjects.length === 0) {
-    list.innerHTML =
-      '<p style="color: #64748b; padding: 15px;">Список предметов пуст.</p>';
-    return;
+  function renderSubjects() {
+    list.innerHTML = db.subjects.length
+      ? db.subjects.map((subject) => `
+        <li class="subject-summary-item">
+          <span style="font-weight:700"><i class="fa-solid fa-book-open-reader" style="color:var(--accent);margin-right:10px"></i>${FuraryDemo.escapeHtml(subject.name)}</span>
+          <span class="toolbar-actions">
+            <button type="button" class="btn-outline" data-action="details" data-id="${FuraryDemo.escapeHtml(subject.id)}"><i class="fa-solid fa-chart-column"></i> Сводка оценок</button>
+            <button type="button" class="user-action-btn user-action-btn--danger" data-action="delete" data-id="${FuraryDemo.escapeHtml(subject.id)}"><i class="fa-solid fa-trash"></i> Удалить</button>
+          </span>
+        </li>`).join("")
+      : '<li class="muted">Список предметов пуст.</li>';
   }
 
-  list.innerHTML = subjects
-    .map(
-      (s) => `
-<li style="display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #1e293b; border: 1px solid #334155; border-radius: 10px; margin-bottom: 10px;">
-  <span style="font-weight: 600; color: #f8fafc; flex-grow: 1; margin-right: 15px;"><i class="fa-solid fa-book-open-reader" style="color: #0284c7; margin-right: 10px;"></i>${s.name}</span>
-  <button class="btn btn-danger" style="width: 120px; flex-shrink: 0; padding: 6px 12px; font-size: 0.85rem; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; text-align: center;" onclick="deleteSubject('${s.id}')">
-    <i class="fa-solid fa-trash"></i> Удалить
-  </button>
-</li>
-`,
-    )
-    .join("");
-}
-
-// Функция удаления предмета из базы данных
-async function deleteSubject(subId) {
-  if (!confirm("Вы уверены, что хотите удалить этот предмет?")) return;
-
-  try {
-    const res = await fetch(`/api/subjects/${subId}`, {
-      method: "DELETE",
+  function showSubjectDetails(subject) {
+    const grades = db.grades.filter((grade) => String(grade.subjectId) === String(subject.id));
+    const students = db.users.filter((user) => user.role === "student");
+    const byGroup = db.groups.map((group) => {
+      const groupStudents = students.filter((student) => student.group === group);
+      const rows = groupStudents.map((student) => {
+        const studentGrades = grades.filter((grade) => String(grade.studentId) === String(student.id));
+        const average = studentGrades.length
+          ? (studentGrades.reduce((sum, grade) => sum + FuraryDemo.scoreOf(grade), 0) / studentGrades.length).toFixed(1)
+          : "0.0";
+        const scoreList = studentGrades.length
+          ? studentGrades.map((grade) => `${FuraryDemo.escapeHtml(grade.date)}: ${FuraryDemo.scoreOf(grade)}${grade.attendance === "a" ? " (Н)" : ""}`).join(" · ")
+          : "Оценок пока нет";
+        return `<tr><td>${FuraryDemo.escapeHtml(student.name)}</td><td>${scoreList}</td><td><span class="average-pill">${average}</span></td></tr>`;
+      }).join("");
+      return groupStudents.length
+        ? `<h4 style="margin:18px 0 8px">${FuraryDemo.escapeHtml(group)}</h4><div class="table-scroll"><table><thead><tr><th>Ученик</th><th>Оценки по урокам</th><th>Средний балл</th></tr></thead><tbody>${rows}</tbody></table></div>`
+        : "";
+    }).join("");
+    const overlay = document.createElement("div");
+    overlay.className = "modal-backdrop";
+    overlay.innerHTML = `<section class="modal-panel" role="dialog" aria-modal="true" aria-label="Сводка оценок">
+      <div class="toolbar"><h3>Сводка по предмету: ${FuraryDemo.escapeHtml(subject.name)}</h3><button class="icon-action" type="button" aria-label="Закрыть"><i class="fa-solid fa-xmark"></i></button></div>
+      <p class="muted">Всего оценок: ${grades.length}. Средний балл считается по всем записям, включая нулевые.</p>
+      ${byGroup || '<p class="muted">В группах пока нет учеников.</p>'}
+    </section>`;
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay || event.target.closest("button")) overlay.remove();
     });
-
-    if (!res.ok) throw new Error("Ошибка удаления");
-
-    // Перезагружаем список
-    const subjects = await loadSubjects();
-    renderSubjects(subjects);
-  } catch (e) {
-    console.error("Не удалось удалить предмет:", e);
-    alert("Ошибка при удалении с сервера.");
+    document.body.append(overlay);
   }
-}
+
+  list.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const subject = db.subjects.find((item) => String(item.id) === button.dataset.id);
+    if (!subject) return;
+    if (button.dataset.action === "details") showSubjectDetails(subject);
+    if (button.dataset.action === "delete" && confirm(`Удалить предмет «${subject.name}»?`)) {
+      db.subjects = db.subjects.filter((item) => String(item.id) !== String(subject.id));
+      FuraryDemo.saveData(db);
+      renderSubjects();
+    }
+  });
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const input = document.getElementById("subject-name");
+    const name = input.value.trim();
+    if (!name) return;
+    db.subjects.push({ id: Date.now(), name });
+    FuraryDemo.saveData(db);
+    input.value = "";
+    renderSubjects();
+  });
+
+  renderSubjects();
+});

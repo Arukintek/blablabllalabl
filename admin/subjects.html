@@ -2,6 +2,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Предметы — FurAry</title>
     <link rel="stylesheet" href="/css/main.css" />
     <link
@@ -68,7 +69,12 @@
 
       <!-- Список предметов -->
       <div class="card">
-        <h2><i class="fa-solid fa-book"></i> Список предметов</h2>
+        <div class="page-heading">
+          <div>
+            <h2><i class="fa-solid fa-book"></i> Список предметов</h2>
+            <p>Откройте сводку, чтобы посмотреть оценки по группам и ученикам.</p>
+          </div>
+        </div>
         <ul
           id="subjects-list"
           style="
@@ -82,6 +88,7 @@
       </div>
     </div>
 
+    <script src="/js/demo-data.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/admin-subjects.js"></script>
   </body>

@@ -1,4 +1,12 @@
 const loginForm = document.getElementById("login-form");
+const visualCleanupKey = "furary-visual-cleanup-v1";
+
+if (localStorage.getItem(visualCleanupKey) !== "true") {
+  localStorage.removeItem("furary-demo-data");
+  localStorage.removeItem("furary-database-loaded");
+  localStorage.removeItem("current_user");
+  localStorage.setItem(visualCleanupKey, "true");
+}
 
 function applyTheme(theme) {
   const isDark = theme === "dark";

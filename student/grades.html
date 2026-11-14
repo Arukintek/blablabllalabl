@@ -2,6 +2,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Мои оценки — FurAry</title>
     <link rel="stylesheet" href="/css/main.css" />
     <link
@@ -53,30 +54,45 @@
             <div class="stat-lbl">Всего оценок</div>
           </div>
         </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div>
+            <div class="stat-val" id="student-absence-count">0</div>
+            <div class="stat-lbl">Пропуски</div>
+          </div>
+        </div>
       </div>
 
       <!-- Таблица оценок -->
       <div class="card" style="overflow-x: auto">
-        <h2>
-          <i class="fa-solid fa-book-open-reader"></i> Детальная успеваемость
-        </h2>
-        <table style="margin-top: 15px">
-          <thead>
-            <tr>
-              <th>Дата урока</th>
-              <th>Тема урока</th>
-              <th style="text-align: center">Оценка / Статус</th>
-              <th>Комментарий преподавателя</th>
-            </tr>
-          </thead>
-          <tbody id="student-grades-tbody">
-            <!-- Заполняется через JS -->
-          </tbody>
-        </table>
+        <div class="toolbar">
+          <div>
+            <h2><i class="fa-solid fa-book-open-reader"></i> Детальная успеваемость</h2>
+            <p class="muted">Оценки за всё время; пропуски и незаполненные оценки учитываются как 0.</p>
+          </div>
+          <div class="form-group compact-control">
+            <label for="student-subject-filter">Предмет</label>
+            <select id="student-subject-filter" class="input-text"><option value="all">Все предметы</option></select>
+          </div>
+        </div>
+        <div id="student-estimated-grade" class="metric-strip"></div>
+        <div class="table-scroll">
+          <table style="margin-top: 15px">
+            <thead>
+              <tr>
+                <th>Дата урока</th>
+                <th>Предмет / тема урока</th>
+                <th style="text-align: center">Оценка / Статус</th>
+                <th>Комментарий преподавателя</th>
+              </tr>
+            </thead>
+            <tbody id="student-grades-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <script src="/js/store.js"></script>
+    <script src="/js/demo-data.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/student-grades.js"></script>
   </body>
