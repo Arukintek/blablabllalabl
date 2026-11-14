@@ -126,6 +126,30 @@ p {
   margin-bottom: 12px;
 }
 
+.last-grade-box {
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 10px;
+  background: var(--bg-soft);
+  text-align: center;
+}
+
+.last-grade-score {
+  color: var(--accent);
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+
+.last-grade-comment {
+  margin-top: 5px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.recent-grade-student {
+  color: var(--text-main);
+}
+
 .top-nav {
   position: relative;
   z-index: 5;
@@ -1233,6 +1257,10 @@ body.dark-theme .metric-chip {
 }
 
 body.dark-theme .grade-value {
+  color: #5eead4;
+}
+
+body.dark-theme .last-grade-score {
   color: #5eead4;
 }
 

@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return `
                     <div class="list-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #1e293b;">
                         <div>
-                            <b style="color: #f8fafc;">${student ? student.name : 'Студент'}</b>
+                            <b class="recent-grade-student">${student ? student.name : 'Студент'}</b>
                             <div style="font-size:0.85rem; color:#94a3b8;">${g.comment || 'Оценка за занятие'}</div>
                         </div>
                         <span class="btn" style="background:#e0f2fe; color:#0284c7; font-weight:700; padding: 4px 10px; border-radius: 6px;">${scoreValue} баллов</span>
