@@ -102,6 +102,46 @@ async function getCurrentUserFromServer() {
   }
 }
 
+function initImpersonationControl(user) {
+  const navUser = document.querySelector(".nav-user");
+  if (!navUser || !user?.impersonatorId || document.getElementById("stop-impersonation-btn")) {
+    return;
+  }
+
+  const button = document.createElement("button");
+  button.id = "stop-impersonation-btn";
+  button.type = "button";
+  button.className = "btn-outline";
+  button.textContent = "Вернуться к администратору";
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    try {
+      const response = await fetch("/api/auth/impersonation/stop", {
+        method: "POST",
+        credentials: "same-origin",
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success || !data.user) {
+        throw new Error(data.message || "Не удалось вернуться к администратору.");
+      }
+
+      localStorage.setItem("current_user", JSON.stringify(data.user));
+      window.location.href = "/admin/users.html";
+    } catch (error) {
+      console.error("Не удалось завершить режим входа от имени пользователя:", error);
+      alert(error.message || "Не удалось вернуться к администратору.");
+      button.disabled = false;
+    }
+  });
+
+  const userName = navUser.querySelector(".user-name");
+  if (userName) {
+    navUser.insertBefore(button, userName);
+  } else {
+    navUser.append(button);
+  }
+}
+
 initThemeToggle();
 
 // Проверка роли пользователя
@@ -117,6 +157,7 @@ async function checkAccess(requiredRole) {
   }
 
   localStorage.setItem("current_user", JSON.stringify(user));
+  initImpersonationControl(user);
   return true;
 }
 

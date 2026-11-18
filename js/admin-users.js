@@ -83,14 +83,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  table.addEventListener("click", (event) => {
+  table.addEventListener("click", async (event) => {
     const button = event.target.closest("button[data-action]");
     if (!button) return;
     const user = db.users.find((item) => String(item.id) === button.dataset.id);
     if (!user) return;
     if (button.dataset.action === "login-as") {
-      localStorage.setItem("current_user", JSON.stringify(user));
-      window.location.href = `/${user.role}/dashboard.html`;
+      button.disabled = true;
+      try {
+        const response = await fetch("/api/auth/impersonate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ userId: user.id }),
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success || !data.user) {
+          throw new Error(data.message || "Не удалось переключить пользователя.");
+        }
+
+        const role = String(data.user.role || "").toLowerCase();
+        if (!["student", "teacher"].includes(role)) {
+          throw new Error("Сервер вернул недопустимую роль пользователя.");
+        }
+
+        localStorage.setItem("current_user", JSON.stringify(data.user));
+        window.location.href = `/${role}/dashboard.html`;
+      } catch (error) {
+        console.error("Не удалось войти от имени пользователя:", error);
+        alert(error.message || "Не удалось переключить пользователя.");
+        button.disabled = false;
+      }
+      return;
     }
     if (button.dataset.action === "delete" && confirm(`Удалить пользователя «${user.name}»?`)) {
       db.users = db.users.filter((item) => String(item.id) !== String(user.id));

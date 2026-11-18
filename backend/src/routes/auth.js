@@ -30,12 +30,14 @@ function parseCookies(header = "") {
   );
 }
 
-function createSignedSession(user) {
+function createSignedSession(user, impersonatorId = null) {
   const payload = {
     id: user.id,
     email: user.email,
     name: user.name,
     role: user.role,
+    ...(user.groupId !== undefined ? { groupId: user.groupId } : {}),
+    ...(impersonatorId !== null ? { impersonatorId } : {}),
   };
 
   const payloadString = JSON.stringify(payload);
@@ -100,8 +102,8 @@ function buildCookieHeader(name, value, maxAge) {
   return cookieParts.join("; ");
 }
 
-function setSessionCookie(res, user) {
-  const sessionValue = createSignedSession(user);
+function setSessionCookie(res, user, impersonatorId = null) {
+  const sessionValue = createSignedSession(user, impersonatorId);
   res.setHeader("Set-Cookie", buildCookieHeader(SESSION_COOKIE_NAME, sessionValue, 86400));
 }
 
@@ -148,6 +150,81 @@ router.get("/session", (req, res) => {
 router.post("/logout", (_req, res) => {
   clearSessionCookie(res);
   return res.json({ success: true });
+});
+
+router.post("/impersonate", requireAuth(["admin"]), async (req, res) => {
+  const userId = Number(req.body?.userId);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ success: false, message: "Некорректный ID пользователя" });
+  }
+
+  try {
+    const admin = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { id: true, role: true },
+    });
+    if (!admin || admin.role.toLowerCase() !== "admin") {
+      return res.status(403).json({ success: false, message: "Доступ запрещен" });
+    }
+
+    const target = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, name: true, role: true, groupId: true },
+    });
+    if (!target) {
+      return res.status(404).json({ success: false, message: "Пользователь не найден" });
+    }
+
+    const targetRole = target.role.toLowerCase();
+    if (!["student", "teacher"].includes(targetRole)) {
+      return res.status(400).json({ success: false, message: "Можно войти только как студент или преподаватель" });
+    }
+
+    setSessionCookie(res, target, admin.id);
+    console.info(JSON.stringify({
+      event: "admin_impersonation_started",
+      adminId: admin.id,
+      targetUserId: target.id,
+    }));
+
+    return res.json({
+      success: true,
+      user: { ...target, impersonatorId: admin.id },
+    });
+  } catch (error) {
+    console.error("Ошибка при переключении пользователя:", error);
+    return res.status(500).json({ success: false, message: "Не удалось переключить пользователя" });
+  }
+});
+
+router.post("/impersonation/stop", requireAuth(), async (req, res) => {
+  const adminId = Number(req.user.impersonatorId);
+  if (!Number.isInteger(adminId) || adminId <= 0) {
+    return res.status(400).json({ success: false, message: "Режим входа от имени пользователя не активен" });
+  }
+
+  try {
+    const admin = await prisma.user.findUnique({
+      where: { id: adminId },
+      select: { id: true, email: true, name: true, role: true, groupId: true },
+    });
+    if (!admin || admin.role.toLowerCase() !== "admin") {
+      clearSessionCookie(res);
+      return res.status(403).json({ success: false, message: "Исходная учетная запись администратора недоступна" });
+    }
+
+    setSessionCookie(res, admin);
+    console.info(JSON.stringify({
+      event: "admin_impersonation_stopped",
+      adminId: admin.id,
+      targetUserId: req.user.id,
+    }));
+
+    return res.json({ success: true, user: admin });
+  } catch (error) {
+    console.error("Ошибка при возврате к администратору:", error);
+    return res.status(500).json({ success: false, message: "Не удалось вернуться к администратору" });
+  }
 });
 
 router.post("/login", async (req, res) => {
