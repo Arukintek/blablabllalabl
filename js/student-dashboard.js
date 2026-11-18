@@ -1,3 +1,5 @@
+const DEFAULT_CLASSROOM = "902";
+
 document.addEventListener("DOMContentLoaded", async () => {
   checkAccess("student");
   initLogout();
@@ -76,6 +78,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   scheduleContainer.innerHTML = `<div class="subject-summary-list"><h4>${escape(nextDay)}</h4>${dayLessons.map((lesson) => `
     <div class="subject-summary-item">
       <div><strong>${escape(lesson.subject?.name || lesson.subject || "Предмет")}</strong><div class="muted">${escape(lesson.timeSlot || lesson.time || "Время не указано")}</div></div>
-      <span class="metric-chip">Каб. ${escape(lesson.room || "-")}</span>
+      <span class="metric-chip">Каб. ${escape(DEFAULT_CLASSROOM)}</span>
     </div>`).join("")}</div>`;
 });

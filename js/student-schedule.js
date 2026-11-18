@@ -1,3 +1,5 @@
+const DEFAULT_CLASSROOM = "902";
+
 async function loadSchedule() {
     try {
         // Получаем текущего пользователя из localStorage
@@ -27,7 +29,7 @@ async function loadSchedule() {
             day: item.dayOfWeek || item.day,
             time: item.timeSlot || item.time,
             subject: item.subject ? item.subject.name : (item.subject || ''),
-            room: item.room || '-',
+            room: DEFAULT_CLASSROOM,
             group: currentUser.group?.name || currentUser.group || ''
         })) : [];
         container.innerHTML = '';
