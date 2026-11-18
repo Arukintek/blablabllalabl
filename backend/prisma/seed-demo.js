@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -14,6 +15,7 @@ async function main() {
   if (!password || password.length < 12) {
     throw new Error("Укажите DEMO_PASSWORD длиной не менее 12 символов.");
   }
+  const passwordHash = await bcrypt.hash(password, 12);
 
   const group = await prisma.group.create({
     data: { name: "Демо-группа" },
@@ -25,7 +27,7 @@ async function main() {
     data: {
       name: "Демо-администратор",
       email: "admin@demo.kyndelik.test",
-      password,
+      password: passwordHash,
       role: "admin",
     },
   });
@@ -33,7 +35,7 @@ async function main() {
     data: {
       name: "Демо-преподаватель",
       email: "teacher@demo.kyndelik.test",
-      password,
+      password: passwordHash,
       role: "teacher",
     },
   });
@@ -41,7 +43,7 @@ async function main() {
     data: {
       name: "Демо-студент",
       email: "student@demo.kyndelik.test",
-      password,
+      password: passwordHash,
       role: "student",
       groupId: group.id,
     },

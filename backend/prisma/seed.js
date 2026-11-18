@@ -1,10 +1,16 @@
+import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+async function hashPassword(password) {
+  return bcrypt.hash(password, 12);
+}
+
 async function main() {
   const isPostgres = process.env.DATABASE_URL?.startsWith("postgres");
   const password = process.env.DEMO_PASSWORD || "password123";
+  const passwordHash = await hashPassword(password);
 
   if (isPostgres && (!process.env.DEMO_PASSWORD || password.length < 12)) {
     throw new Error(
@@ -38,7 +44,7 @@ async function main() {
         data: {
           name: "Администратор",
           email: "admin@college.edu",
-          password,
+          password: passwordHash,
           role: "admin",
         },
       });
@@ -47,7 +53,7 @@ async function main() {
         data: {
           name: "Меркушев Р.В.",
           email: "merkushev.rv@college.edu",
-          password,
+          password: passwordHash,
           role: "teacher",
         },
       });
@@ -56,7 +62,7 @@ async function main() {
         data: {
           name: "Мкртчян А.",
           email: "mkrtchyan.a@college.edu",
-          password,
+          password: passwordHash,
           role: "teacher",
         },
       });
@@ -65,7 +71,7 @@ async function main() {
         data: {
           name: "Сёмик К.Д.",
           email: "semyk.kd@college.edu",
-          password,
+          password: passwordHash,
           role: "teacher",
         },
       });
@@ -137,7 +143,7 @@ async function main() {
           data: {
             name: fullName,
             email: `student1_${i + 1}@college.edu`,
-            password,
+            password: passwordHash,
             role: "student",
             groupId: group1.id,
           },
@@ -170,7 +176,7 @@ async function main() {
           data: {
             name: fullName,
             email: `student2_${i + 1}@college.edu`,
-            password,
+            password: passwordHash,
             role: "student",
             groupId: group2.id,
           },

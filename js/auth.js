@@ -59,22 +59,19 @@ if (loginForm) {
     const pass = document.getElementById("pass").value;
 
     try {
-      // Отправляем запрос на бэкенд
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "same-origin",
         body: JSON.stringify({ email, pass }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Сохраняем объект пользователя, полученный с сервера
         localStorage.setItem("current_user", JSON.stringify(data.user));
-
-        // Перенаправляем на соответствующий дашборд в зависимости от роли
         window.location.href = `/${data.user.role}/dashboard.html`;
       } else {
         alert(data.message || "Неверный логин или пароль");
@@ -88,22 +85,55 @@ if (loginForm) {
   });
 }
 
+async function getCurrentUserFromServer() {
+  try {
+    const response = await fetch("/api/auth/session", {
+      credentials: "same-origin",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return data.user || null;
+  } catch (error) {
+    return null;
+  }
+}
+
 initThemeToggle();
 
 // Проверка роли пользователя
-function checkAccess(requiredRole) {
-  const user = JSON.parse(localStorage.getItem("current_user"));
-  if (!user || user.role !== requiredRole) {
+async function checkAccess(requiredRole) {
+  const user = await getCurrentUserFromServer();
+  const normalizedRequiredRole = String(requiredRole || "").toLowerCase();
+
+  if (!user || String(user.role || "").toLowerCase() !== normalizedRequiredRole) {
     alert("Доступ запрещен! Пожалуйста, войдите в систему.");
+    localStorage.removeItem("current_user");
     window.location.href = "/login.html";
+    return false;
   }
+
+  localStorage.setItem("current_user", JSON.stringify(user));
+  return true;
 }
 
 // Выход из системы
 function initLogout() {
   const logoutBtn = document.getElementById("logout-btn");
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          credentials: "same-origin",
+        });
+      } catch (error) {
+        console.error("Ошибка при выходе:", error);
+      }
+
       localStorage.removeItem("current_user");
       window.location.href = "/login.html";
     });

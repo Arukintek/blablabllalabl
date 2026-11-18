@@ -9,6 +9,10 @@ services:
     envVars:
       - key: PRISMA_SCHEMA
         value: prisma/schema.postgres.prisma
+      - key: SESSION_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
       - key: DATABASE_URL
         sync: false
       - key: DATABASE_URL_UNPOOLED
